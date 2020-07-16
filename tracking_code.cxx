@@ -523,7 +523,7 @@ int main(){
   for (const auto& entry : std::filesystem::directory_iterator(pathToOpticFiles)) {
     ProtonTransport * p;
     p = new ProtonTransport;
-    std::cout << "Processing file: " << entry.path() << std::endl;
+    std::cout << "Processing file: " << entry.path() << " ..." << std::endl;
     p->PrepareBeamline(entry.path().string(), false);
     p->simple_tracking(205., entry.path().string());
     delete p;
