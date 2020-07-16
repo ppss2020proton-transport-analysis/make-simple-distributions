@@ -597,9 +597,9 @@ int main(){
   //p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta30cm_6500GeV_y140murad", false);
   p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta40cm_6500GeV_y-185murad", false);
   //p->set_shift(1,3,2,0.0004); //1 quadrupole 2 dipole 3hkicker 4vkicker; number 1,2... ;axis 1x 2y 3z 4strength; value //- only those are currently working
-  p->set_shift(1,1,1,-0.0005); //kickers and dipole not working for some reason, or they don't matter at all?
-  
-
+  p->set_shift(1,5,1,0.005); //kickers and dipole not working for some reason, or they don't matter at all?
+  								//vkickers react to changes in z-axis
+  								// dipoles no change - uniform mag field
   p->simple_tracking(205.);
   //p.simple_tracking(58.3145);
   //p.simple_tracking(44.742);
