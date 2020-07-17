@@ -29,12 +29,18 @@ using std::ifstream;
 using std::istringstream;
 
 struct Shift {
-  double x_shift = 0; 
-  double y_shift = 0; 
-  double z_shift = 0;
+  Shift() : x_shift(0), y_shift(0), z_shift(0) {}
+  Shift(double x_shift, double y_shift, double z_shift)
+    : x_shift(x_shift), y_shift(y_shift), z_shift(z_shift) {}
+  double x_shift; 
+  double y_shift; 
+  double z_shift;
 };
 
 struct Magnet {
+  Magnet() : magnet_type(""), magnet_number(0) {}
+  Magnet(string magnet_type, int magnet_number) 
+    : magnet_type(magnet_type), magnet_number(magnet_number) {}
   string magnet_type = "";
   int magnet_number = 0;
 };
