@@ -3,8 +3,6 @@
  \version 1.0
  \date 21/03/2020
 */
-
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -41,6 +39,14 @@ struct Magnet {
   int magnet_number = 0;
 };
 
+bool operator < (Magnet lhs, Magnet rhs) {
+  if (lhs.magnet_type != rhs.magnet_type) {
+    return lhs.magnet_type < rhs.magnet_type;
+  } else {
+    return lhs.magnet_number < rhs.magnet_number; 
+  }
+}
+
 class ProtonTransport {
   public:
     ProtonTransport(); //!< constructor 
@@ -52,7 +58,7 @@ class ProtonTransport {
     double GetBeamEnergy();
     void SetBeampipeSeparation(double);
     double GetBeampipeSeparation();
-    void set_shift(int, int, int, double);
+    void set_shift(Magnet, Shift);
     void do_shift(Magnet, string);
   private:
     double IP1Pos;
@@ -239,7 +245,7 @@ void ProtonTransport::do_shift(Magnet m, string command) {
     x = magnet_to_shift[m].x_shift + x; 
     y = magnet_to_shift[m].x_shift + y; 
     z = magnet_to_shift[m].x_shift + z; 
-  } else if (command = "subtract") {
+  } else if (command == "subtract") {
     x = magnet_to_shift[m].x_shift - x; 
     y = magnet_to_shift[m].x_shift - y; 
     z = magnet_to_shift[m].x_shift - z; 
@@ -599,10 +605,6 @@ int main() {
   p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta40cm_6500GeV_y-185murad", false);
   //p->set_shift(1,3,2,0.0004); //1 quadrupole 2 dipole 3hkicker 4vkicker; number 1,2... ;axis 1x 2y 3z 4strength; value //- only those are currently working
   p->set_shift(Magnet{"dipole", 2}, Shift{}); //kickers and dipole not working for some reason, or they don't matter at all?
-  Shift s;
-  s.x_shift(0.1);
-  p->set_shift(Magnet{"dipole", 1}, s); //kickers and dipole not working for some reason, or they don't matter at all?
-  
 
   p->simple_tracking(205.);
   //p.simple_tracking(58.3145);
