@@ -28,23 +28,49 @@ using std::string;
 using std::ifstream;
 using std::istringstream;
 
-struct Shift {
+class Shift {
+public:
   Shift() : dx(0), dy(0), dz(0) {}
+
   Shift(double dx, double dy, double dz)
     : dx(dx), dy(dy), dz(dz) {}
 
+  double GetXShift() const {
+    return dx;
+  }
+
+  double GetYShift() const {
+    return dy;
+  }
+
+  double GetZShift() const {
+    return dz;
+  }
+
+private:
   double dx; 
   double dy; 
   double dz;
 };
 
 struct Magnet {
+public:
   Magnet() : type(""), number(0) {}
+
   Magnet(string type, int number) 
     : type(type), number(number) {}
 
-  string type = "";
-  int number = 0;
+  string GeType() const {
+    return type;
+  }
+
+  int GetNumber() const {
+    return number;
+  }
+
+private:
+  string type;
+  int number;
 };
 
 // 6 quadrupoles, 2 dipoles, 5 horizotal kickers and 5 vertical kickers
@@ -56,15 +82,15 @@ struct MagnetNumberIterators {
 };
 
 bool operator < (Magnet lhs, Magnet rhs) {
-  if (lhs.type != rhs.type) {
-    return lhs.type < rhs.type;
+  if (lhs.GeType() != rhs.GeType()) {
+    return lhs.GeType() < rhs.GeType();
   } else {
-    return lhs.number < rhs.number; 
+    return lhs.GetNumber() < rhs.GetNumber(); 
   }
 }
 
 bool operator == (Magnet lhs, Magnet rhs) {
-  if ((lhs.type == rhs.type) && (lhs.number == rhs.number)) {
+  if ((lhs.GeType() == rhs.GeType()) && (lhs.GetNumber() == rhs.GetNumber())) {
     return 1;
   } else {
     return 0;
@@ -265,13 +291,13 @@ void ProtonTransport::set_shift(const Magnet& magnet, const Shift& shift){ //1 q
 
 void ProtonTransport::do_shift(const Magnet& m, const string& command) {
   if (command == "addict") {
-    x = x + magnet_to_shift[m].dx; 
-    y = y + magnet_to_shift[m].dy; 
-    z = z + magnet_to_shift[m].dz; 
+    x = x + magnet_to_shift[m].GetXShift(); 
+    y = y + magnet_to_shift[m].GetYShift(); 
+    z = z + magnet_to_shift[m].GetZShift(); 
   } else if (command == "subtract") {
-    x = x - magnet_to_shift[m].dx; 
-    y = y - magnet_to_shift[m].dy; 
-    z = z - magnet_to_shift[m].dz; 
+    x = x - magnet_to_shift[m].GetXShift(); 
+    y = y - magnet_to_shift[m].GetYShift(); 
+    z = z - magnet_to_shift[m].GetZShift(); 
   } else {
     std::cout << "No such command" << std::endl;
   }
