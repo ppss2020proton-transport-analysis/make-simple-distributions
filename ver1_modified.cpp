@@ -248,13 +248,13 @@ void ProtonTransport::set_shift(Magnet m, Shift sh){ //1 quadrupole; number;axis
 
 void ProtonTransport::do_shift(Magnet m, string command) {
   if (command == "addict") {
-    x = magnet_to_shift[m].x_shift + x; 
-    y = magnet_to_shift[m].x_shift + y; 
-    z = magnet_to_shift[m].x_shift + z; 
+    x = x + magnet_to_shift[m].x_shift; 
+    y = y + magnet_to_shift[m].y_shift; 
+    z = z + magnet_to_shift[m].z_shift; 
   } else if (command == "subtract") {
-    x = magnet_to_shift[m].x_shift - x; 
-    y = magnet_to_shift[m].x_shift - y; 
-    z = magnet_to_shift[m].x_shift - z; 
+    x = x - magnet_to_shift[m].x_shift; 
+    y = y - magnet_to_shift[m].y_shift; 
+    z = z - magnet_to_shift[m].z_shift; 
   } else {
     std::cout << "No such command" << std::endl;
   }
