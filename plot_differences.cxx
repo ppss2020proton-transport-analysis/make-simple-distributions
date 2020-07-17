@@ -12,9 +12,9 @@
 
 int main() {
   TFile* file_optics1 = new TFile(
-      "root_PPSS_2020/1pythia8_13TeV_protons_100k_transported_205m_beta40cm_6500GeV_y-185murad.root");
+      "root_PPSS_2020/1_default_pythia8_13TeV_protons_100k_transported_205m_beta40cm_6500GeV_y-185murad.root");
   TFile* file_optics2 = new TFile(
-      "root_PPSS_2020/1pythia8_13TeV_protons_100k_transported_205m_beta40cm_6500GeV_y-140murad.root");
+      "root_PPSS_2020/1_shifted_pythia8_13TeV_protons_100k_transported_205m_beta40cm_6500GeV_y-185murad.root");
 
   TTree* tree_optics1 = (TTree*)file_optics1->Get("ntuple");
   TTree* tree_optics2 = (TTree*)file_optics2->Get("ntuple");
@@ -67,27 +67,27 @@ int main() {
   Long64_t nentries = tree_optics1->GetEntriesFast();
   std::cout << "Number of entries: " << nentries << std::endl;
 
-  // 1D histos for the x, y, sx and sy difference between optics1(-185murad) and optics2(-140murad)
-  TH1F* x_diff = new TH1F("x_diff", "x difference between optics1(-185murad) and optics2(-140murad);x_diff;nOfEvents", 100, -0.001, 0.001);
-  TH1F* y_diff = new TH1F("y_diff", "y difference between optics1(-185murad) and optics2(-140murad);y_diff;nOfEvents", 100, 0.0004, 0.0008);
-  TH1F* sx_diff = new TH1F("sx_diff", "sx difference between optics1(-185murad) and optics2(-140murad);sx_diff;nOfEvents", 100, -0.001, 0.001);
-  TH1F* sy_diff = new TH1F("sy_diff", "sy difference between optics1(-185murad) and optics2(-140murad)sy_diff;nOfEvents", 100, -0.00001, 0);
+  // 1D histos for the x, y, sx and sy difference between optics1_default(-185murad) and optics2_shifted(-185murad)
+  TH1F* x_diff = new TH1F("x_diff", "x difference between optics1_default(-185murad) and optics2_shifted(-185murad);x_diff;nOfEvents", 100, -0.001, 0.001);
+  TH1F* y_diff = new TH1F("y_diff", "y difference between optics1_default(-185murad) and optics2_shifted(-185murad);y_diff;nOfEvents", 100, 0.0004, 0.0008);
+  TH1F* sx_diff = new TH1F("sx_diff", "sx difference between optics1_default(-185murad) and optics2_shifted(-185murad);sx_diff;nOfEvents", 100, -0.001, 0.001);
+  TH1F* sy_diff = new TH1F("sy_diff", "sy difference between optics1_default(-185murad) and optics2_shifted(-185murad)sy_diff;nOfEvents", 100, -0.00001, 0);
 
-  // 2D histos for the x, y, sx and sy vs px/py/pz difference between optics1(-185murad) and optics2(-140murad)
-  TH2F* x_diff_vs_px = new TH2F("x_diff_vs_px", "x difference between optics1(-185murad) and optics2(-140murad) vs px;x_diff;px;nOfEvents", 100, -0.001, 0.001, 100, -3.1, 2.7);
-  TH2F* y_diff_vs_px = new TH2F("y_diff_vs_px", "y difference between optics1(-185murad) and optics2(-140murad) vs px;y_diff;px;nOfEvents", 100, 0.0004, 0.0008, 100, -3.1, 2.7);
-  TH2F* sx_diff_vs_px = new TH2F("sx_diff_vs_px", "sx difference between optics1(-185murad) and optics2(-140murad) vs px;sx_diff;px;nOfEvents", 100, -0.001, 0.001, 100, -3.1, 2.7);
-  TH2F* sy_diff_vs_px = new TH2F("sy_diff_vs_px", "sy difference between optics1(-185murad) and optics2(-140murad) vs px;sy_diff;px;nOfEvents", 100, -0.00001, 0, 100, -3.1, 2.7);
+  // 2D histos for the x, y, sx and sy vs px/py/pz difference between optics1_default(-185murad) and optics2_shifted(-185murad)
+  TH2F* x_diff_vs_px = new TH2F("x_diff_vs_px", "x difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs px;x_diff;px;nOfEvents", 100, -0.001, 0.001, 100, -3.1, 2.7);
+  TH2F* y_diff_vs_px = new TH2F("y_diff_vs_px", "y difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs px;y_diff;px;nOfEvents", 100, 0.0004, 0.0008, 100, -3.1, 2.7);
+  TH2F* sx_diff_vs_px = new TH2F("sx_diff_vs_px", "sx difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs px;sx_diff;px;nOfEvents", 100, -0.001, 0.001, 100, -3.1, 2.7);
+  TH2F* sy_diff_vs_px = new TH2F("sy_diff_vs_px", "sy difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs px;sy_diff;px;nOfEvents", 100, -0.00001, 0, 100, -3.1, 2.7);
 
-  TH2F* x_diff_vs_py = new TH2F("x_diff_vs_py", "x difference between optics1(-185murad) and optics2(-140murad) vs py;x_diff;py;nOfEvents", 100, -0.001, 0.001, 100, -3.8, 3);
-  TH2F* y_diff_vs_py = new TH2F("y_diff_vs_py", "y difference between optics1(-185murad) and optics2(-140murad) vs py;y_diff;py;nOfEvents", 100, 0.0004, 0.0008, 100, -3.8, 3);
-  TH2F* sx_diff_vs_py = new TH2F("sx_diff_vs_py", "sx difference between optics1(-185murad) and optics2(-140murad) vs py;sx_diff;py;nOfEvents", 100, -0.001, 0.001, 100, -3.8, 3);
-  TH2F* sy_diff_vs_py = new TH2F("sy_diff_vs_py", "sy difference between optics1(-185murad) and optics2(-140murad) vs py;sy_diff;py;nOfEvents", 100, -0.00001, 0, 100, -3.8, 3);
+  TH2F* x_diff_vs_py = new TH2F("x_diff_vs_py", "x difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs py;x_diff;py;nOfEvents", 100, -0.001, 0.001, 100, -3.8, 3);
+  TH2F* y_diff_vs_py = new TH2F("y_diff_vs_py", "y difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs py;y_diff;py;nOfEvents", 100, 0.0004, 0.0008, 100, -3.8, 3);
+  TH2F* sx_diff_vs_py = new TH2F("sx_diff_vs_py", "sx difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs py;sx_diff;py;nOfEvents", 100, -0.001, 0.001, 100, -3.8, 3);
+  TH2F* sy_diff_vs_py = new TH2F("sy_diff_vs_py", "sy difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs py;sy_diff;py;nOfEvents", 100, -0.00001, 0, 100, -3.8, 3);
 
-  TH2F* x_diff_vs_pz = new TH2F("x_diff_vs_pz", "x difference between optics1(-185murad) and optics2(-140murad) vs pz;x_diff;pz;nOfEvents", 100, -0.001, 0.001, 100, 5000, 6470.2);
-  TH2F* y_diff_vs_pz = new TH2F("y_diff_vs_pz", "y difference between optics1(-185murad) and optics2(-140murad) vs pz;y_diff;pz;nOfEvents", 100, 0.0004, 0.0008, 100, 5000, 6470.2);
-  TH2F* sx_diff_vs_pz = new TH2F("sx_diff_vs_pz", "sx difference between optics1(-185murad) and optics2(-140murad) vs pz;sx_diff;pz;nOfEvents", 100, -0.001, 0.001, 100, 5000, 6470.2);
-  TH2F* sy_diff_vs_pz = new TH2F("sy_diff_vs_pz", "sy difference between optics1(-185murad) and optics2(-140murad) vs pz;sy_diff;pz;nOfEvents", 100, -0.00001, 0, 100, 5000, 6470.2);
+  TH2F* x_diff_vs_pz = new TH2F("x_diff_vs_pz", "x difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs pz;x_diff;pz;nOfEvents", 100, -0.001, 0.001, 100, 5000, 6470.2);
+  TH2F* y_diff_vs_pz = new TH2F("y_diff_vs_pz", "y difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs pz;y_diff;pz;nOfEvents", 100, 0.0004, 0.0008, 100, 5000, 6470.2);
+  TH2F* sx_diff_vs_pz = new TH2F("sx_diff_vs_pz", "sx difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs pz;sx_diff;pz;nOfEvents", 100, -0.001, 0.001, 100, 5000, 6470.2);
+  TH2F* sy_diff_vs_pz = new TH2F("sy_diff_vs_pz", "sy difference between optics1_default(-185murad) and optics2_shifted(-185murad) vs pz;sy_diff;pz;nOfEvents", 100, -0.00001, 0, 100, 5000, 6470.2);
 
   for (Int_t i = 0; i < nentries; i++) {
     tree_optics1->GetEntry(i);
@@ -117,80 +117,84 @@ int main() {
   delete tree_optics1, tree_optics2, file_optics1, file_optics2;
 
   TCanvas* canvas_diffs_1d = new TCanvas("canvas_diffs_1d", "canvas", 1280, 720);
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf[");
+  std::string filename_1d = "optics1_default(-185murad)-optics2_shifted(-185murad).pdf";
+
+  canvas_diffs_1d->SaveAs((filename_1d + "[").c_str());
 
   x_diff->Draw("hist");
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf");
+  canvas_diffs_1d->SaveAs(filename_1d.c_str());
   canvas_diffs_1d->Clear();
 
   y_diff->Draw("hist");
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf");
+  canvas_diffs_1d->SaveAs(filename_1d.c_str());
   canvas_diffs_1d->Clear();
 
   sx_diff->Draw("hist");
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf");
+  canvas_diffs_1d->SaveAs(filename_1d.c_str());
   canvas_diffs_1d->Clear();
 
   sy_diff->Draw("hist");
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf");
+  canvas_diffs_1d->SaveAs(filename_1d.c_str());
   canvas_diffs_1d->Clear();
 
-  canvas_diffs_1d->SaveAs("optics1(-185murad)-optics2(-140murad).pdf]");
+  canvas_diffs_1d->SaveAs((filename_1d + "]").c_str());
 
   delete canvas_diffs_1d, x_diff, y_diff, sx_diff, sy_diff;
 
   TCanvas* canvas_diffs_2d = new TCanvas("canvas_diffs_2d", "canvas", 1280, 720);
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf[");
+  std::string filename_2d = "optics1_default(-185murad)-optics2_shifted(-185murad)_vs_px_py_pz.pdf";
+
+  canvas_diffs_2d->SaveAs((filename_2d + "[").c_str());
 
   x_diff_vs_px->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   x_diff_vs_py->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   x_diff_vs_pz->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   y_diff_vs_px->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   y_diff_vs_py->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   y_diff_vs_pz->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sx_diff_vs_px->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sx_diff_vs_py->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sx_diff_vs_pz->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sy_diff_vs_px->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sy_diff_vs_py->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
   sy_diff_vs_pz->Draw("colz");
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf");
+  canvas_diffs_2d->SaveAs(filename_2d.c_str());
   canvas_diffs_2d->Clear();
 
-  canvas_diffs_2d->SaveAs("optics1(-185murad)-optics2(-140murad)_vs_p.pdf]");
+  canvas_diffs_2d->SaveAs((filename_2d + "]").c_str());
 
   delete canvas_diffs_2d, x_diff_vs_px, x_diff_vs_py, x_diff_vs_pz, 
          y_diff_vs_px, y_diff_vs_py, y_diff_vs_pz, 
