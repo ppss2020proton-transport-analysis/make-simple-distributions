@@ -108,8 +108,8 @@ class ProtonTransport {
     double GetBeamEnergy();
     void SetBeampipeSeparation(double);
     double GetBeampipeSeparation();
-    void set_shift(const Magnet&, const Shift&);
-    void do_shift(const Magnet&, const string&);
+    void SetShift(const Magnet&, const Shift&);
+    void DoShift(const Magnet&, const string&);
   private:
     double IP1Pos;
     double x, y, z, px, py, pz, sx, sy;
@@ -233,7 +233,7 @@ void ProtonTransport::simple_drift(double L, bool verbose=false){
 
 void ProtonTransport::simple_rectangular_dipole(double L, double K0L){
   iterators.dipole_it += 1;
-  do_shift(Magnet{"dipole", iterators.dipole_it}, "subtract");
+  DoShift(Magnet{"dipole", iterators.dipole_it}, "subtract");
 
   if (fabs(K0L) < 1.e-15)
   {
@@ -246,12 +246,12 @@ void ProtonTransport::simple_rectangular_dipole(double L, double K0L){
   sx += K0L*beam_energy/pz;
   //sy does not change
 
-  do_shift(Magnet{"dipole", iterators.dipole_it}, "addict");
+  DoShift(Magnet{"dipole", iterators.dipole_it}, "addict");
 }
 
 void ProtonTransport::simple_horizontal_kicker(double L, double HKICK){
   iterators.horizontal_kicker_it += 1;
-  do_shift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "subtract");
+  DoShift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "subtract");
 
 
   if (fabs(HKICK) < 1.e-15)
@@ -264,12 +264,12 @@ void ProtonTransport::simple_horizontal_kicker(double L, double HKICK){
   y += L*sy;
   sx += HKICK*beam_energy/pz;
 
-  do_shift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "addict");
+  DoShift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "addict");
 }
 
 void ProtonTransport::simple_vertical_kicker(double L, double VKICK){
   iterators.vertical_kicker_it += 1;
-  do_shift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "subtract");
+  DoShift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "subtract");
 
   if (fabs(VKICK) < 1.e-15)
   {
@@ -281,23 +281,23 @@ void ProtonTransport::simple_vertical_kicker(double L, double VKICK){
   y += L*sy + L*0.5*VKICK*beam_energy/pz; // length * initial slope + length * half of angle (from geometry) * correction due to energy loss
   sy += VKICK*beam_energy/pz;
 
-  do_shift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "addict"); 
+  DoShift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "addict"); 
 }
 
 
-void ProtonTransport::set_shift(const Magnet& magnet, const Shift& shift){ //1 quadrupole; number;axis 1x 2y 3z; value
+void ProtonTransport::SetShift(const Magnet& magnet, const Shift& shift){ //1 quadrupole; number;axis 1x 2y 3z; value
   magnet_to_shift[magnet] = shift;
 }
 
-void ProtonTransport::do_shift(const Magnet& m, const string& command) {
+void ProtonTransport::DoShift(const Magnet& m, const string& command) {
   if (command == "addict") {
-    x = x + magnet_to_shift[m].GetXShift(); 
-    y = y + magnet_to_shift[m].GetYShift(); 
-    z = z + magnet_to_shift[m].GetZShift(); 
+    x += magnet_to_shift[m].GetXShift(); 
+    y += magnet_to_shift[m].GetYShift(); 
+    z += magnet_to_shift[m].GetZShift(); 
   } else if (command == "subtract") {
-    x = x - magnet_to_shift[m].GetXShift(); 
-    y = y - magnet_to_shift[m].GetYShift(); 
-    z = z - magnet_to_shift[m].GetZShift(); 
+    x -= magnet_to_shift[m].GetXShift(); 
+    y -= magnet_to_shift[m].GetYShift(); 
+    z -= magnet_to_shift[m].GetZShift(); 
   } else {
     std::cout << "No such command" << std::endl;
   }
@@ -312,7 +312,7 @@ void ProtonTransport::simple_quadrupole(double L, double K1L, bool verbose=false
     return;
   }
 
-  do_shift(Magnet{"quadrupole", iterators.quadrupole_it}, "subtract"); 
+  DoShift(Magnet{"quadrupole", iterators.quadrupole_it}, "subtract"); 
 
 
 
@@ -352,7 +352,7 @@ void ProtonTransport::simple_quadrupole(double L, double K1L, bool verbose=false
   }
   
 
-  do_shift(Magnet{"quadrupole", iterators.quadrupole_it}, "addict"); 
+  DoShift(Magnet{"quadrupole", iterators.quadrupole_it}, "addict"); 
 
 
 // std::cout<<numb_of_obj_uses<<'\n';
@@ -643,8 +643,8 @@ int main() {
   p = new ProtonTransport;
   //p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta30cm_6500GeV_y140murad", false);
   p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta40cm_6500GeV_y-185murad", false);
-  //p->set_shift(1,3,2,0.0004); //1 quadrupole 2 dipole 3hkicker 4vkicker; number 1,2... ;axis 1x 2y 3z 4strength; value //- only those are currently working
-  p->set_shift(Magnet{"dipole", 2}, Shift{}); //kickers and dipole not working for some reason, or they don't matter at all?
+  //p->SetShift(1,3,2,0.0004); //1 quadrupole 2 dipole 3hkicker 4vkicker; number 1,2... ;axis 1x 2y 3z 4strength; value //- only those are currently working
+  p->SetShift(Magnet{"dipole", 2}, Shift{}); //kickers and dipole not working for some reason, or they don't matter at all?
 
   p->simple_tracking(205.);
   //p.simple_tracking(58.3145);
