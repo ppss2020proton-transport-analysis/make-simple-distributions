@@ -16,6 +16,7 @@
 #include <TROOT.h>
 #include <algorithm>
 #include <map>
+#include <filesystem>
 using std::cout;
 using std::endl;
 using std::vector;
@@ -102,7 +103,7 @@ class ProtonTransport {
     ProtonTransport(); //!< constructor 
     ~ProtonTransport(); //!< destructor 
     void PrepareBeamline(string, bool); 
-    void simple_tracking(double);
+    void simple_tracking(double, const string&);
     void simple_pythia_tracking(double);
     void SetBeamEnergy(double);
     double GetBeamEnergy();
@@ -115,6 +116,7 @@ class ProtonTransport {
     double x, y, z, px, py, pz, sx, sy;
     std::map<Magnet, Shift> magnet_to_shift;
     MagnetNumberIterators iterators;
+    bool is_shifted = false;
     //obj type -diplole quadrupole etc
     //shift obj number 1st 2dn dipole etc ; shift value - self explanatory ;shift axis_axis- x y z strength - condition applied in magnet methods
     // values or vectors- depending if we'll shift 2 things at once - if not values will work
@@ -287,6 +289,7 @@ void ProtonTransport::simple_vertical_kicker(double L, double VKICK){
 
 void ProtonTransport::SetShift(const Magnet& magnet, const Shift& shift){ //1 quadrupole; number;axis 1x 2y 3z; value
   magnet_to_shift[magnet] = shift;
+  is_shifted = true;
 }
 
 void ProtonTransport::DoShift(const Magnet& m, const string& command) {
@@ -450,7 +453,7 @@ void ProtonTransport::PrepareBeamline(string filename, bool verbose=false){
   }
 }
 
-void ProtonTransport::simple_tracking(double obs_point){
+void ProtonTransport::simple_tracking(double obs_point, const string& optics_file_name){
 
   int m_process_code;
   vector<float> *m_px;
@@ -494,7 +497,27 @@ void ProtonTransport::simple_tracking(double obs_point){
   int n_process_code;
   float n_px, n_py, n_pz, n_e;
   float n_x, n_y, n_sx, n_sy;
-  TFile * p = new TFile("pythia8_13TeV_protons_100k_transported_shifted_205m_beta40cm_6500GeV_y-185murad.root","recreate");
+  
+  string optics_root_file_name = "root_PPSS_2020/";
+  if (optics_file_name[26] == '1') {
+    optics_root_file_name += "1_";
+  } else {
+    optics_root_file_name += "2_";
+  }
+
+  if (is_shifted) {
+    optics_root_file_name += "shifted_";
+  } else {
+    optics_root_file_name += "default_";
+  }
+
+  optics_root_file_name += "pythia8_13TeV_protons_100k_transported_205m" + 
+                                 optics_file_name.substr(optics_file_name.find("_beta")) + 
+                                 ".root";
+
+  std::cout << "The ROOT output file: " << optics_root_file_name << std::endl << std::endl; 
+  TFile * p = new TFile(optics_root_file_name.c_str(),"recreate");
+
   TH1F * cs = new TH1F("sigma", "cross-section [mb]", 1, 0., 1.);
   TH1F * efficiency = new TH1F("efficiency", "efficiency", 1, 0., 1.);
   TTree * tree = new TTree("ntuple", "ntuple");
@@ -638,22 +661,23 @@ void ProtonTransport::simple_tracking(double obs_point){
 }
 
 int main() {
-  ProtonTransport * p;
-  //p.prepare_beamline("alfaTwiss1.txt_beta30cm_6500GeV_y140murad");
-  p = new ProtonTransport;
-  //p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta30cm_6500GeV_y140murad", false);
-  p->PrepareBeamline("optics_PPSS_2020/alfaTwiss1.txt_beta40cm_6500GeV_y-185murad", false);
-  //p->SetShift(1,3,2,0.0004); //1 quadrupole 2 dipole 3hkicker 4vkicker; number 1,2... ;axis 1x 2y 3z 4strength; value //- only those are currently working
-  p->SetShift(Magnet{"dipole", 2}, Shift{}); //kickers and dipole not working for some reason, or they don't matter at all?
+  char path_to_optic_files[] = "optics_PPSS_2020";
 
-  p->simple_tracking(205.);
-  //p.simple_tracking(58.3145);
-  //p.simple_tracking(44.742);
-  //p.simple_tracking(31.529);
-  //p.simple_tracking(29.335);
-  //p.simple_tracking(21.564);
+  for (const auto& entry : std::filesystem::directory_iterator(path_to_optic_files)) {
+    ProtonTransport* p_default = new ProtonTransport;
+    ProtonTransport* p_shifted = new ProtonTransport;
 
+    std::cout << "Processing file: " << entry.path() << " ..." << std::endl;
 
-  delete p;
+    p_default->PrepareBeamline(entry.path().string(), false);
+    p_default->simple_tracking(205., entry.path().string());
+
+    p_shifted->PrepareBeamline(entry.path().string(), false);
+    p_shifted->SetShift(Magnet{"dipole", 1}, Shift{0.0005, 0, 0});
+    p_shifted->simple_tracking(205., entry.path().string());
+
+    delete p_default, p_shifted;
+  }
+
   return 0;
 }
