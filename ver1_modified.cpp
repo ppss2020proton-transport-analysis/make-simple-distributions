@@ -14,6 +14,8 @@
 #include <TH1F.h>
 #include <TTree.h>
 #include <TROOT.h>
+#include <TSystemDirectory.h>
+#include <TList.h>
 #include <algorithm>
 #include <map>
 #include <filesystem>
@@ -686,22 +688,35 @@ void ProtonTransport::simple_tracking(double obs_point, const string& optics_fil
 }
 
 int main() {
-  char path_to_optic_files[] = "optics_PPSS_2020";
+  char path_to_optic_files[] = "optics_PPSS_2020/";
+  TSystemDirectory* dir = new TSystemDirectory(path_to_optic_files, path_to_optic_files);
+  TList* list_of_files = dir->GetListOfFiles();
 
-  for (const auto& entry : std::filesystem::directory_iterator(path_to_optic_files)) {
-    ProtonTransport* p_default = new ProtonTransport;
-    ProtonTransport* p_shifted = new ProtonTransport;
+  if (list_of_files) {
+    TSystemFile* file;
+    TString fname;
+    TIter next(list_of_files);
 
-    std::cout << "Processing file: " << entry.path() << " ..." << std::endl;
+    while (file=(TSystemFile*)next()) {
+      fname = file->GetName();
+      std::cout << "hey there" << endl; 
+      if (!file->IsDirectory() && fname.BeginsWith("alfaTwiss")) {
+        ProtonTransport* p_default = new ProtonTransport;
+        ProtonTransport* p_shifted = new ProtonTransport;
 
-    p_default->PrepareBeamline(entry.path().string(), false);
-    p_default->simple_tracking(205., entry.path().string());
+        std::string fname_str = string(path_to_optic_files) + string(fname.Data());
+        std::cout << "Processing fie: " << fname_str << std::endl;
 
-    p_shifted->PrepareBeamline(entry.path().string(), false);
-    p_shifted->SetShift(Dipole{1}, Shift{0.0005, 0, 0});
-    p_shifted->simple_tracking(205., entry.path().string());
+        p_default->PrepareBeamline(fname_str, false);
+        p_default->simple_tracking(205., fname_str);
 
-    delete p_default, p_shifted;
+        p_shifted->PrepareBeamline(fname_str, false);
+        p_shifted->SetShift(Dipole{1}, Shift{0.0005, 0, 0});
+        p_shifted->simple_tracking(205., fname_str);
+
+        delete p_default, p_shifted;
+      }
+    }
   }
 
   return 0;
