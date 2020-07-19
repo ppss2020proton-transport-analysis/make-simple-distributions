@@ -54,28 +54,50 @@ private:
   double dz;
 };
 
-struct Magnet {
+class Magnet {
 public:
-  Magnet() : type(""), number(0) {}
-
-  Magnet(string type, int number) 
-    : type(type), number(number) {}
+  Magnet(const string& type = "", int id = 0) 
+    : type(type), id(id) {}
 
   string GeType() const {
     return type;
   }
 
-  int GetNumber() const {
-    return number;
+  int GetId() const {
+    return id;
   }
 
 private:
   string type;
-  int number;
+  int id;
+};
+
+class Dipole : public Magnet {
+public:
+  Dipole(int id) 
+    : Magnet("dipole", id) {}
+};
+
+class Quadrupole : public Magnet {
+public:
+  Quadrupole(int id) 
+    : Magnet("quadrupole", id) {}
+};
+
+class VerticalKicker : public Magnet {
+public:
+  VerticalKicker(int id) 
+    : Magnet("vertical_kicker", id) {}
+};
+
+class HorizontalKicker : public Magnet {
+public:
+  HorizontalKicker(int id) 
+    : Magnet("horizontal_kicker", id) {}
 };
 
 // 6 quadrupoles, 2 dipoles, 5 horizotal kickers and 5 vertical kickers
-struct MagnetNumberIterators {
+struct MagnetIdIterators {
   int dipole_it = 0;
   int quadrupole_it = 0;
   int vertical_kicker_it = 0;
@@ -86,12 +108,12 @@ bool operator < (Magnet lhs, Magnet rhs) {
   if (lhs.GeType() != rhs.GeType()) {
     return lhs.GeType() < rhs.GeType();
   } else {
-    return lhs.GetNumber() < rhs.GetNumber(); 
+    return lhs.GetId() < rhs.GetId(); 
   }
 }
 
 bool operator == (Magnet lhs, Magnet rhs) {
-  if ((lhs.GeType() == rhs.GeType()) && (lhs.GetNumber() == rhs.GetNumber())) {
+  if ((lhs.GeType() == rhs.GeType()) && (lhs.GetId() == rhs.GetId())) {
     return 1;
   } else {
     return 0;
@@ -115,10 +137,10 @@ class ProtonTransport {
     double IP1Pos;
     double x, y, z, px, py, pz, sx, sy;
     std::map<Magnet, Shift> magnet_to_shift;
-    MagnetNumberIterators iterators;
+    MagnetIdIterators iterators;
     bool is_shifted = false;
     //obj type -diplole quadrupole etc
-    //shift obj number 1st 2dn dipole etc ; shift value - self explanatory ;shift axis_axis- x y z strength - condition applied in magnet methods
+    //shift obj id 1st 2dn dipole etc ; shift value - self explanatory ;shift axis_axis- x y z strength - condition applied in magnet methods
     // values or vectors- depending if we'll shift 2 things at once - if not values will work
     // numb_of_obj_uses - how many times an magnet/dipole etc has been used for specifiv proton - needs to be cleared NEEDS TO BE A VECTOR WITH ENTRY CORESPONDING OBJ TYPE 
     double beam_energy;
@@ -235,7 +257,7 @@ void ProtonTransport::simple_drift(double L, bool verbose=false){
 
 void ProtonTransport::simple_rectangular_dipole(double L, double K0L){
   iterators.dipole_it += 1;
-  DoShift(Magnet{"dipole", iterators.dipole_it}, "subtract");
+  DoShift(Dipole{iterators.dipole_it}, "subtract");
 
   if (fabs(K0L) < 1.e-15)
   {
@@ -248,12 +270,12 @@ void ProtonTransport::simple_rectangular_dipole(double L, double K0L){
   sx += K0L*beam_energy/pz;
   //sy does not change
 
-  DoShift(Magnet{"dipole", iterators.dipole_it}, "addict");
+  DoShift(Dipole{iterators.dipole_it}, "addict");
 }
 
 void ProtonTransport::simple_horizontal_kicker(double L, double HKICK){
   iterators.horizontal_kicker_it += 1;
-  DoShift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "subtract");
+  DoShift(HorizontalKicker{iterators.horizontal_kicker_it}, "subtract");
 
 
   if (fabs(HKICK) < 1.e-15)
@@ -266,12 +288,12 @@ void ProtonTransport::simple_horizontal_kicker(double L, double HKICK){
   y += L*sy;
   sx += HKICK*beam_energy/pz;
 
-  DoShift(Magnet{"horizontal_kicker", iterators.horizontal_kicker_it}, "addict");
+  DoShift(HorizontalKicker{iterators.horizontal_kicker_it}, "addict");
 }
 
 void ProtonTransport::simple_vertical_kicker(double L, double VKICK){
   iterators.vertical_kicker_it += 1;
-  DoShift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "subtract");
+  DoShift(VerticalKicker{iterators.vertical_kicker_it}, "subtract");
 
   if (fabs(VKICK) < 1.e-15)
   {
@@ -283,26 +305,28 @@ void ProtonTransport::simple_vertical_kicker(double L, double VKICK){
   y += L*sy + L*0.5*VKICK*beam_energy/pz; // length * initial slope + length * half of angle (from geometry) * correction due to energy loss
   sy += VKICK*beam_energy/pz;
 
-  DoShift(Magnet{"vertical_kicker", iterators.vertical_kicker_it}, "addict"); 
+  DoShift(VerticalKicker{iterators.vertical_kicker_it}, "addict"); 
 }
 
 
-void ProtonTransport::SetShift(const Magnet& magnet, const Shift& shift){ //1 quadrupole; number;axis 1x 2y 3z; value
+void ProtonTransport::SetShift(const Magnet& magnet, const Shift& shift){ //1 quadrupole; id;axis 1x 2y 3z; value
   magnet_to_shift[magnet] = shift;
   is_shifted = true;
 }
 
 void ProtonTransport::DoShift(const Magnet& m, const string& command) {
-  if (command == "addict") {
-    x += magnet_to_shift[m].GetXShift(); 
-    y += magnet_to_shift[m].GetYShift(); 
-    z += magnet_to_shift[m].GetZShift(); 
-  } else if (command == "subtract") {
-    x -= magnet_to_shift[m].GetXShift(); 
-    y -= magnet_to_shift[m].GetYShift(); 
-    z -= magnet_to_shift[m].GetZShift(); 
-  } else {
-    std::cout << "No such command" << std::endl;
+  if (magnet_to_shift.find(m) != magnet_to_shift.end()) {
+    if (command == "addict") {
+      x += magnet_to_shift.at(m).GetXShift(); 
+      y += magnet_to_shift.at(m).GetYShift(); 
+      z += magnet_to_shift.at(m).GetZShift(); 
+    } else if (command == "subtract") {
+      x -= magnet_to_shift.at(m).GetXShift(); 
+      y -= magnet_to_shift.at(m).GetYShift(); 
+      z -= magnet_to_shift.at(m).GetZShift(); 
+    } else {
+      std::cout << "No such command!" << std::endl;
+    }
   }
 }
 
@@ -315,7 +339,7 @@ void ProtonTransport::simple_quadrupole(double L, double K1L, bool verbose=false
     return;
   }
 
-  DoShift(Magnet{"quadrupole", iterators.quadrupole_it}, "subtract"); 
+  DoShift(Quadrupole{iterators.quadrupole_it}, "subtract"); 
 
 
 
@@ -355,7 +379,7 @@ void ProtonTransport::simple_quadrupole(double L, double K1L, bool verbose=false
   }
   
 
-  DoShift(Magnet{"quadrupole", iterators.quadrupole_it}, "addict"); 
+  DoShift(Quadrupole{iterators.quadrupole_it}, "addict"); 
 
 
 // std::cout<<numb_of_obj_uses<<'\n';
@@ -534,6 +558,7 @@ void ProtonTransport::simple_tracking(double obs_point, const string& optics_fil
   
   for (int evt=0; evt<nevents; evt++)
   {
+    iterators = {};
     ntuple->GetEntry(evt);
 
 //  for (double E=6500.; E<=1.00001*7000.; E += 100.)
@@ -673,7 +698,7 @@ int main() {
     p_default->simple_tracking(205., entry.path().string());
 
     p_shifted->PrepareBeamline(entry.path().string(), false);
-    p_shifted->SetShift(Magnet{"dipole", 1}, Shift{0.0005, 0, 0});
+    p_shifted->SetShift(Dipole{1}, Shift{0.0005, 0, 0});
     p_shifted->simple_tracking(205., entry.path().string());
 
     delete p_default, p_shifted;
